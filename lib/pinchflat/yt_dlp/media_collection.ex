@@ -132,18 +132,26 @@ defmodule Pinchflat.YtDlp.MediaCollection do
     end
   end
 
+  # check if a string is empty
+  defp empty_string(v),
+    do: is_nil(v) or String.trim(v) == ""
+
   defp format_source_details(response) do
-    # NOTE: I should probably make this a struct some day
-    %{
-      channel_id: response["channel_id"],
-      channel_name: response["channel"],
-      playlist_id: response["playlist_id"],
-      playlist_name: response["playlist_title"],
-      # It's not a name, it's a path dammit!
-      # This actually isn't used for the inital response - it's
-      # used later to update a source's metadata
-      filepath: response["filename"]
-    }
+    if not (empty_string(response["channel"])) or not (empty_string(response["playlist_title"])) do
+      # NOTE: I should probably make this a struct some day
+      %{
+        channel_id: response["channel_id"],
+        channel_name: response["channel"],
+        playlist_id: response["playlist_id"],
+        playlist_name: response["playlist_title"],
+        # It's not a name, it's a path dammit!
+        # This actually isn't used for the inital response - it's
+        # used later to update a source's metadata
+        filepath: response["filename"]
+      }
+    else
+      {:error,"Cannot obtain Channel/Playlist Name from URL."}
+    end
   end
 
   defp backend_runner do
